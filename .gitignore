@@ -1,0 +1,6 @@
+dist/
+main.spec
+build/
+.idea/
+__pycache__/
+res.txt
