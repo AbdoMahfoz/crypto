@@ -94,13 +94,21 @@ def validate_case(case, solution):
 
 if __name__ == "__main__":
     if len(argv) > 1 and argv[1] == "--no-prompt":
-        prompt = ''
+        prompt = ['' for _ in range(5)]
     else:
-        prompt = 'Input 1 for generating cases and 2 for validating solution: '
-    mode = int(input() if len(prompt) == 0 else input(prompt))
+        prompt = [
+            'Input 1 for generating cases and 2 for validating solution: ',
+            'Enter case: ',
+            'Enter solution: ',
+            'Enter number of variables: ',
+            'Enter number of clauses or -1 to generate all possible clauses: '
+        ]
+    mode = int(input(prompt[0]))
     if mode == 2:
-        case = input()
-        solution = input()
+        case = input(prompt[1])
+        solution = input(prompt[2])
         validate_case(case, solution)
     else:
-        print_clauses(*[int(x) for x in input().split()])
+        n = int(input(prompt[3]))
+        m = int(input(prompt[4]))
+        print_clauses(n, m)
