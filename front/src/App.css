@@ -1,0 +1,36 @@
+.jumbotron {
+  background-color: black;
+  border-radius: 6px;
+  padding: 20px;
+  margin: auto;
+  box-shadow: gray 0px 0px 8px 5px;
+}
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+body {
+  font-family: "Courier New";
+  background-color: #0f0f0f;
+  color: white !important;
+}
+input {
+  background-color: #0f0f0f !important;
+  display: inline !important;
+  width: auto !important;
+  color: white !important;
+  margin-left: 10px;
+}
+.input-label {
+  font-weight: bold;
+  margin: auto;
+}
+.title-header {
+  text-align: center;
+}
+.text-input {
+  display: block !important;
+  width: 100%;
+}

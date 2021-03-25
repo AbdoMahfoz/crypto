@@ -61,7 +61,7 @@ def validate_solution(clauses, solution):
     return True
 
 
-def print_clauses(n, m=-1):
+def generate_clauses(n, m=-1):
     clauses = generate_clause_space(n)
     print(f"Number of all possible clauses = {len(clauses)}")
     trials = 1
@@ -79,8 +79,15 @@ def print_clauses(n, m=-1):
                 continue
         break
     clauses = [' v '.join([f"x{y}" if y > 0 else f"-x{abs(y)}" for y in x]) for x in clauses]
-    print('Problem: (' + ') ^ ('.join(clauses) + ')')
-    print("Solution: " + ", ".join([f"x{n} = True" if n > 0 else f"x{abs(n)} = False" for n in solution]))
+    clauses_str = '(' + ') ^ ('.join(clauses) + ')'
+    solution_str = ", ".join([f"x{n} = True" if n > 0 else f"x{abs(n)} = False" for n in solution])
+    return clauses_str, solution_str
+
+
+def print_clauses(n, m=-1):
+    clauses, solution = generate_clauses(n, m)
+    print('Problem: ' + clauses)
+    print("Solution: " + solution)
 
 
 def validate_case(case, solution):
