@@ -1,5 +1,6 @@
 import numpy as np
 from pysat.solvers import Glucose3
+from sys import argv
 
 
 def __generator_helper(i, n, tmp_ans, final_ans):
@@ -30,6 +31,36 @@ def solve(clauses):
     return True, solver.get_model()
 
 
+def load_case(case: str):
+    case = case.replace('(', '')
+    case = case.replace(')', '')
+    case = case.replace('x', '')
+    clauses = [tuple(int(x) for x in y.split('v')) for y in case.split('^')]
+    return clauses
+
+
+def load_solution(solution: str):
+    return [int(x) for x in solution.split(',')]
+
+
+def validate_solution(clauses, solution):
+    truth_table = {}
+    for v in solution:
+        truth_table[abs(v)] = 1 if v > 0 else -1
+    for idx in range(len(clauses)):
+        found_true = False
+        for x in clauses[idx]:
+            if x * truth_table[abs(x)] > 0:
+                found_true = True
+                break
+        if not found_true:
+            print("The following clause wasn't true: (" +
+                  " v ".join(f'x{i}' if i > 0 else f'-x{abs(i)}' for i in clauses[idx]) +
+                  f") which is clause #{idx}")
+            return False
+    return True
+
+
 def print_clauses(n, m=-1):
     clauses = generate_clause_space(n)
     print(f"Number of all possible clauses = {len(clauses)}")
@@ -52,5 +83,24 @@ def print_clauses(n, m=-1):
     print("Solution: " + ", ".join([f"x{n} = True" if n > 0 else f"x{abs(n)} = False" for n in solution]))
 
 
+def validate_case(case, solution):
+    clauses = load_case(case)
+    solution = load_solution(solution)
+    if validate_solution(clauses, solution):
+        print("Solution is valid")
+    else:
+        print("Invalid solution")
+
+
 if __name__ == "__main__":
-    print_clauses(*[int(x) for x in input().split()])
+    if len(argv) > 1 and argv[1] == "--no-prompt":
+        prompt = ''
+    else:
+        prompt = 'Input 1 for generating cases and 2 for validating solution: '
+    mode = int(input() if len(prompt) == 0 else input(prompt))
+    if mode == 2:
+        case = input()
+        solution = input()
+        validate_case(case, solution)
+    else:
+        print_clauses(*[int(x) for x in input().split()])
