@@ -4,3 +4,5 @@ build/
 .idea/
 __pycache__/
 res.txt
+static/
+templates/
