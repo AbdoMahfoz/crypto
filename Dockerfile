@@ -13,5 +13,4 @@ WORKDIR /app
 COPY --from=0 /app/build static/
 RUN mkdir templates && mv static/index.html templates/
 COPY *.py ./
-EXPOSE 5000
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD flask run --host=0.0.0.0 --port=$PORT
