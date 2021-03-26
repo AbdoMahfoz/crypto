@@ -1,8 +1,11 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+}
 .jumbotron {
   background-color: black;
   border-radius: 6px;
   padding: 20px;
-  margin: auto;
   box-shadow: gray 0px 0px 8px 5px;
 }
 .container {
@@ -19,13 +22,16 @@ body {
 input {
   background-color: #0f0f0f !important;
   display: inline !important;
-  width: auto !important;
   color: white !important;
   margin-left: 10px;
 }
 .input-label {
   font-weight: bold;
-  margin: auto;
+}
+.input-label-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 .title-header {
   text-align: center;
@@ -33,4 +39,10 @@ input {
 .text-input {
   display: block !important;
   width: 100%;
+}
+.vertical-line {
+  background-color: white;
+  width: 1px;
+  height: 100%;
+  margin: auto;
 }

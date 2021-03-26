@@ -3,9 +3,12 @@ import "./App.css";
 
 const Input = (props) => (
   <div className="row" style={{ margin: "5px 0px" }}>
-    <div className="form-group">
+    <div className="col-md-6 col-sm-12 col-xs-12 input-label-container">
       <label className="input-label">{props.label}</label>
+    </div>
+    <div className="col-md-6 col-sm-12 col-xs-12">
       <input
+        type="text"
         name={props.name}
         value={props.value}
         onChange={props.onChange}
@@ -59,50 +62,63 @@ class App extends Component {
   };
   render() {
     return (
-      <div className="container" onKeyPress={this.handleKeyPress}>
+      <div
+        className="container page-container"
+        onKeyPress={this.handleKeyPress}
+      >
         <div className="jumbotron">
           <h1 className="title-header">SAT research helper</h1>
           <div className="container-fluid">
-            <Input
-              name="num_vars"
-              label="Number of variables"
-              value={this.state.num_vars}
-              onChange={this.handleOnChange}
-            />
-            <Input
-              name="num_clauses"
-              label="Number of clauses"
-              value={this.state.num_clauses}
-              onChange={this.handleOnChange}
-            />
-            <div className="container">
-              <button
-                onClick={this.handleGenerate}
-                style={{ width: "100%" }}
-                className="btn btn-secondary"
-                disabled={this.state.isLoading}
-              >
-                {this.state.isLoading ? (
-                  <div className="spinner-border">
-                    <span className="sr-only" />
+            <div className="row">
+              <div className="col-md-6 col-sm-12">
+                <Input
+                  name="num_vars"
+                  label="Number of variables"
+                  value={this.state.num_vars}
+                  onChange={this.handleOnChange}
+                />
+                <Input
+                  name="num_clauses"
+                  label="Number of clauses"
+                  value={this.state.num_clauses}
+                  onChange={this.handleOnChange}
+                />
+                <div style={{ padding: "0px 10px" }}>
+                  <button
+                    onClick={this.handleGenerate}
+                    style={{ width: "100%" }}
+                    className="btn btn-secondary"
+                    disabled={this.state.isLoading}
+                  >
+                    {this.state.isLoading ? (
+                      <div className="spinner-border">
+                        <span className="sr-only" />
+                      </div>
+                    ) : (
+                      "Generate"
+                    )}
+                  </button>
+                </div>
+                {this.state.clause_res != null && (
+                  <div style={{ marginTop: "10px" }}>
+                    <label style={{ fontWeight: "bold" }}>Clauses: </label>
+                    <p>{this.state.clause_res}</p>
                   </div>
-                ) : (
-                  "Generate"
                 )}
-              </button>
+                {this.state.solution_res != null && (
+                  <div>
+                    <label style={{ fontWeight: "bold" }}>Solution: </label>
+                    <p>{this.state.solution_res}</p>
+                  </div>
+                )}
+              </div>
+              <div className="col-md-1 col-sm-12 col-xs-12">
+                <div className="vertical-line" />
+              </div>
+              <div className="col-md-5 col-sm-12">
+                <p>Validation</p>
+              </div>
             </div>
-            {this.state.clause_res != null && (
-              <div style={{ marginTop: "10px" }}>
-                <label style={{ fontWeight: "bold" }}>Clauses: </label>
-                <p>{this.state.clause_res}</p>
-              </div>
-            )}
-            {this.state.solution_res != null && (
-              <div>
-                <label style={{ fontWeight: "bold" }}>Solution: </label>
-                <p>{this.state.solution_res}</p>
-              </div>
-            )}
           </div>
         </div>
       </div>
