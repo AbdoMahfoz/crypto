@@ -32,8 +32,7 @@ class App extends Component {
     }
     this.setState({ isLoading: true });
     fetch(
-      `generate?num_vars=${this.state.num_vars}&num_clauses=${this.state.num_clauses}`,
-      { mode: "no-cors" }
+      `generate?num_vars=${this.state.num_vars}&num_clauses=${this.state.num_clauses}`
     )
       .then((data) => data.json())
       .then((data) =>
@@ -53,9 +52,14 @@ class App extends Component {
     }
     this.setState({ [event.target.name]: val });
   };
+  handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      this.handleGenerate();
+    }
+  };
   render() {
     return (
-      <div className="container">
+      <div className="container" onKeyPress={this.handleKeyPress}>
         <div className="jumbotron">
           <h1 className="title-header">SAT research helper</h1>
           <div className="container-fluid">
