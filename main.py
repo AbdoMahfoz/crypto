@@ -31,7 +31,7 @@ def solve(clauses):
     return True, solver.get_model()
 
 
-def load_case(case: str):
+def load_clauses(case: str):
     case = case.replace('(', '')
     case = case.replace(')', '')
     case = case.replace('x', '')
@@ -54,16 +54,12 @@ def validate_solution(clauses, solution):
                 found_true = True
                 break
         if not found_true:
-            print("The following clause wasn't true: (" +
-                  " v ".join(f'x{i}' if i > 0 else f'-x{abs(i)}' for i in clauses[idx]) +
-                  f") which is clause #{idx}")
-            return False
-    return True
+            return False, clauses[idx], idx
+    return True, None, None
 
 
 def generate_clauses(n, m=-1):
     clauses = generate_clause_space(n)
-    print(f"Number of all possible clauses = {len(clauses)}")
     trials = 1
     while True:
         if m != -1:
@@ -78,25 +74,40 @@ def generate_clauses(n, m=-1):
                 trials += 1
                 continue
         break
-    clauses = [' v '.join([f"x{y}" if y > 0 else f"-x{abs(y)}" for y in x]) for x in clauses]
-    clauses_str = '(' + ') ^ ('.join(clauses) + ')'
-    solution_str = ", ".join([f"x{n} = True" if n > 0 else f"x{abs(n)} = False" for n in solution])
-    return clauses_str, solution_str
+    return clauses, solution
+
+
+def clause_to_string(clause):
+    clause = ' v '.join([f"x{y}" if y > 0 else f"-x{abs(y)}" for y in clause])
+    return clause
+
+
+def generate_clauses_strings(n, m=-1):
+    clauses, solution = generate_clauses(n, m)
+    all_possible_clauses = len(clauses)
+    clauses = [clause_to_string(x) for x in clauses]
+    clauses = '(' + ') ^ ('.join(clauses) + ')'
+    solution = ", ".join([f"x{n} = True" if n > 0 else f"x{abs(n)} = False" for n in solution])
+    return clauses, solution, all_possible_clauses
 
 
 def print_clauses(n, m=-1):
-    clauses, solution = generate_clauses(n, m)
+    clauses, solution, all_possible_clauses = generate_clauses_strings(n, m)
+    print(f"Number of all possible clauses = {all_possible_clauses}")
     print('Problem: ' + clauses)
     print("Solution: " + solution)
 
 
-def validate_case(case, solution):
-    clauses = load_case(case)
+def validate_solution_with_print(case, solution):
+    clauses = load_clauses(case)
     solution = load_solution(solution)
-    if validate_solution(clauses, solution):
+    status, clause, idx = validate_solution(clauses, solution)
+    if status:
         print("Solution is valid")
     else:
-        print("Invalid solution")
+        print("Invalid Solution\nThe following clause wasn't true: (" +
+              " v ".join(f'x{i}' if i > 0 else f'-x{abs(i)}' for i in clause) +
+              f") which is clause #{idx}")
 
 
 if __name__ == "__main__":
@@ -114,7 +125,7 @@ if __name__ == "__main__":
     if mode == 2:
         case = input(prompt[1])
         solution = input(prompt[2])
-        validate_case(case, solution)
+        validate_solution_with_print(case, solution)
     else:
         n = int(input(prompt[3]))
         m = int(input(prompt[4]))
