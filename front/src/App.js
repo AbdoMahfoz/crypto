@@ -335,7 +335,9 @@ class App extends Component {
           )}
           {this.state.validation_res != null && (
             <React.Fragment>
-              <h3 style={{ textAlign: "center" }}>Validation</h3>
+              <h3 style={{ textAlign: "center", marginTop: "15px" }}>
+                Validation
+              </h3>
               <div
                 style={{
                   display: "flex",
