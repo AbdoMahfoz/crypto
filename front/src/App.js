@@ -28,6 +28,7 @@ class App extends Component {
     val_num_vars: "",
     num_clauses: "",
     val_clause: "",
+    val_clause_tmp: null,
     clause_res: null,
     solution_res: null,
     validation_res: null,
@@ -78,6 +79,7 @@ class App extends Component {
                 )
               : prevState.validation_vars,
         }));
+        this.res_ref.scrollIntoView({ behavior: "smooth" });
       })
       .catch((e) => {
         this.setState({ isLoading: false });
@@ -117,12 +119,14 @@ class App extends Component {
         if (data === true) {
           return;
         }
-        this.setState({
+        this.setState((prevState) => ({
           validation_res: false,
           validation_res_clause: data.clause,
           validation_res_idx: data.idx,
           isValidationLoading: false,
-        });
+          val_clause_tmp: prevState.val_clause,
+        }));
+        this.res_ref.scrollIntoView({ behavior: "smooth" });
       })
       .catch((e) => {
         this.setState({ isValidationLoading: false });
@@ -180,10 +184,19 @@ class App extends Component {
       this.handleGenerate();
     }
   };
-  render_elements = (source, separator) =>
-    source.split(separator).map((v, i) => (
-      <React.Fragment>
-        {i !== 0 && (
+  render_elements = (source, separator, redIdx = -1) => {
+    const elements = source.split(separator);
+    return elements.map((v, i) => (
+      <div className="d-md-inline-block d-sm-block d-block">
+        <label
+          style={{
+            wordBreak: "keep-all",
+            color: redIdx === i ? "red" : "white",
+          }}
+        >
+          {v}
+        </label>
+        {i !== elements.length - 1 && (
           <label
             style={{
               wordBreak: "keep-all",
@@ -193,9 +206,9 @@ class App extends Component {
             {separator}
           </label>
         )}
-        <label style={{ wordBreak: "keep-all" }}>{v}</label>
-      </React.Fragment>
+      </div>
     ));
+  };
   render() {
     return (
       <div
@@ -236,6 +249,10 @@ class App extends Component {
                     )}
                   </button>
                 </div>
+                <p style={{ fontStyle: "italic", padding: "20px" }}>
+                  Generated clause will automatically be fed into validation if
+                  the validation fields are blank
+                </p>
               </div>
               <div className="col-md-1 col-sm-12 col-xs-12">
                 <div className="d-md-block d-sm-none d-none vertical-line" />
@@ -267,9 +284,7 @@ class App extends Component {
                       paddingLeft: "1px",
                     }}
                   >
-                    <label style={{ marginLeft: "10px" }}>
-                      Variable #{i + 1}
-                    </label>
+                    <label style={{ marginLeft: "10px" }}>X{i + 1}</label>
                     <div style={{ display: "inline" }}>
                       <div style={{ display: "inline-block" }}>
                         <input
@@ -323,13 +338,55 @@ class App extends Component {
           {this.state.clause_res != null && (
             <React.Fragment>
               <h3 style={{ textAlign: "center" }}>Generation</h3>
-              <div style={{ marginTop: "10px" }}>
-                <label style={{ fontWeight: "bold" }}>Clauses: </label>
-                <div>{this.render_elements(this.state.clause_res, " ^ ")}</div>
+              <div
+                style={{
+                  marginTop: "10px",
+                }}
+              >
+                <label
+                  className="d-none d-sm-none d-md-inline"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Clauses:
+                </label>
+                <label
+                  className="d-block d-sm-block d-md-none"
+                  style={{
+                    fontWeight: "bold",
+                    width: "100%",
+                    textAlign: "center",
+                  }}
+                >
+                  Clauses
+                </label>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div>
+                    {this.render_elements(this.state.clause_res, " ^ ")}
+                  </div>
+                </div>
               </div>
               <div>
-                <label style={{ fontWeight: "bold" }}>Solution: </label>
-                <div>{this.render_elements(this.state.solution_res, ", ")}</div>
+                <label
+                  className="d-none d-sm-none d-md-inline"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Solution:
+                </label>
+                <label
+                  className="d-block d-sm-block d-md-none"
+                  style={{
+                    fontWeight: "bold",
+                    width: "100%",
+                    textAlign: "center",
+                  }}
+                >
+                  Solution
+                </label>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div>
+                    {this.render_elements(this.state.solution_res, ", ")}
+                  </div>
+                </div>
               </div>
             </React.Fragment>
           )}
@@ -351,23 +408,23 @@ class App extends Component {
                   <label style={{ color: "green" }}>Solution is valid!</label>
                 ) : (
                   <React.Fragment>
-                    <label style={{ color: "red" }}>Invalid solution!</label>
+                    <label>
+                      Invalid solution! Clauses marked in red represent the
+                      clauses that evaluated to false
+                    </label>
                     <div>
-                      <label style={{ fontWeight: "bold" }}>
-                        Clause that yielded false:
-                      </label>
-                      <label style={{ margin: "0px 0.5rem" }}>
-                        {this.state.validation_res_clause}
-                      </label>
-                      <label style={{ fontWeight: "bold" }}>
-                        {"Which is #" + this.state.validation_res_idx}
-                      </label>
+                      {this.render_elements(
+                        this.state.val_clause_tmp,
+                        "^",
+                        this.state.validation_res_idx
+                      )}
                     </div>
                   </React.Fragment>
                 )}
               </div>
             </React.Fragment>
           )}
+          <div ref={(e) => (this.res_ref = e)}></div>
         </div>
       </div>
     );
