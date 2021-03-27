@@ -110,6 +110,7 @@ class App extends Component {
       .then((response) => {
         if (response.status === 200) {
           this.setState({ validation_res: true, isValidationLoading: false });
+          this.res_ref.scrollIntoView({ behavior: "smooth" });
           return true;
         } else {
           return response.json();
