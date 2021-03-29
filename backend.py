@@ -31,11 +31,11 @@ def validate():
         solution = obj["solution"]
     except (ValueError, KeyError):
         return json_response(status_=400)
-    status, clause, idx = validate_solution(clauses, solution)
+    status, errored_clauses, idx = validate_solution(clauses, solution)
     if status:
         return json_response(status_=200)
     else:
-        return json_response(status_=202, clause=f"({clause_to_string(clause)})", idx=idx)
+        return json_response(status_=202, clause=[f"({clause_to_string(x)})" for x in errored_clauses], idx=idx)
 
 
 if __name__ == "__main__":

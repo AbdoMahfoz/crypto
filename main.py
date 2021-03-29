@@ -47,6 +47,8 @@ def validate_solution(clauses, solution):
     truth_table = {}
     for v in solution:
         truth_table[abs(v)] = 1 if v > 0 else -1
+    failed_clauses = []
+    failed_clauses_idx = []
     for idx in range(len(clauses)):
         found_true = False
         for x in clauses[idx]:
@@ -54,8 +56,12 @@ def validate_solution(clauses, solution):
                 found_true = True
                 break
         if not found_true:
-            return False, clauses[idx], idx
-    return True, None, None
+            failed_clauses.append(clauses[idx])
+            failed_clauses_idx.append(idx)
+    if len(failed_clauses) == 0:
+        return True, None, None
+    else:
+        return False, failed_clauses, failed_clauses_idx
 
 
 def generate_clauses(n, m=-1):

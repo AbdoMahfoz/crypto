@@ -185,14 +185,14 @@ class App extends Component {
       this.handleGenerate();
     }
   };
-  render_elements = (source, separator, redIdx = -1) => {
+  render_elements = (source, separator, redIdx = []) => {
     const elements = source.split(separator);
     return elements.map((v, i) => (
       <div className="d-md-inline-block d-sm-block d-block">
         <label
           style={{
             wordBreak: "keep-all",
-            color: redIdx === i ? "red" : "white",
+            color: redIdx.includes(i) ? "red" : "white",
           }}
         >
           {v}
