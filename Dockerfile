@@ -7,6 +7,9 @@ RUN yarn build
 
 FROM python:3.8
 WORKDIR /app
+RUN apt-get install make g++
+COPY cgen cgen
+RUN cd cgen && make && cd ..
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 COPY --from=0 /app/build static/
