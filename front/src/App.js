@@ -24,6 +24,10 @@ class App extends Component {
   state = {
     isLoading: false,
     isValidationLoading: false,
+    uploaded_file_name: "",
+    shuffle_loading: false,
+    download_ready: false,
+    res_file: null,
     num_vars: "",
     val_num_vars: "",
     num_clauses: "",
@@ -52,7 +56,12 @@ class App extends Component {
       alert("Please enter number of variables and number of clauses");
       return;
     }
-    this.setState({ isLoading: true, clause_res: null, solution_res: null });
+    this.setState({
+      isLoading: true,
+      clause_res: null,
+      solution_res: null,
+      download_ready: false,
+    });
     fetch(
       `generate?num_vars=${this.state.num_vars}&num_clauses=${this.state.num_clauses}`
     )
@@ -254,6 +263,59 @@ class App extends Component {
                   Generated clause will automatically be fed into validation if
                   the validation fields are blank
                 </p>
+                <input
+                  className="form-control"
+                  style={{ marginLeft: "0px" }}
+                  type="file"
+                  ref={(e) => {
+                    this.file_ref = e;
+                  }}
+                  disabled={this.state.shuffle_loading}
+                  onChange={() => {
+                    const file = this.file_ref.files[0];
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    this.setState({ uploaded_file_name: file.name });
+                    this.setState({
+                      shuffle_loading: true,
+                      download_ready: false,
+                    });
+                    fetch("shuffle", { method: "post", body: formData })
+                      .then((res) => res.blob())
+                      .then((res) => {
+                        this.setState({
+                          shuffle_loading: false,
+                          res_file: res,
+                          download_ready: true,
+                        });
+                      });
+                  }}
+                />
+
+                {(this.state.shuffle_loading || this.state.download_ready) && (
+                  <button
+                    onClick={() => {
+                      var url = window.URL.createObjectURL(this.state.res_file);
+                      var a = document.createElement("a");
+                      a.href = url;
+                      a.download = "file.txt";
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                    }}
+                    style={{ width: "100%", marginTop: "10px" }}
+                    className="btn btn-secondary"
+                    disabled={!this.state.download_ready}
+                  >
+                    {this.state.shuffle_loading ? (
+                      <div className="spinner-border">
+                        <span className="sr-only" />
+                      </div>
+                    ) : (
+                      "Download " + this.state.uploaded_file_name
+                    )}
+                  </button>
+                )}
               </div>
               <div className="col-md-1 col-sm-12 col-xs-12">
                 <div className="d-md-block d-sm-none d-none vertical-line" />
