@@ -2,6 +2,8 @@ import numpy as np
 from pysat.solvers import Glucose3
 from sys import argv
 from random import Random
+from zipfile import ZipFile
+from io import BytesIO
 
 
 def __generator_helper(i, n, tmp_ans, final_ans):
@@ -30,8 +32,15 @@ def solve(clauses):
         return False, []
     return True, solver.get_model()
 
+def shuffle_clauses(clauses: "list[list[int]]", count: int = 1) -> "list[list[list[int]]]":
+    if count <= 1:
+        return __shuffle_helper(clauses)
+    res = []
+    for _ in range(count):
+        res.append(__shuffle_helper(clauses))
+    return res
 
-def shuffle_clauses(clauses: "list[list[int]]") -> "list[list[int]]":
+def __shuffle_helper(clauses: "list[list[int]]") -> "list[list[int]]":
     positives = {}
     negatives = {}
     for i in range(len(clauses)):
@@ -64,7 +73,6 @@ def shuffle_clauses(clauses: "list[list[int]]") -> "list[list[int]]":
         res.append(list(new_clause))
         new_clause.clear()
     return res
-
 
 def load_clauses_from_file(file: str) -> "list[list[int]]":
     lines = file.splitlines()
@@ -99,6 +107,15 @@ def clauses_to_file(clauses: "list[list[int]]") -> str:
         lines.append(" ".join(str(x) for x in clause) + " 0")
     lines.insert(0, f"p cnf {var_count} {len(lines)}")
     return '\n'.join(lines)
+
+def zip_clauses(clauses: "list[list[list[int]]]"):
+    res = BytesIO()
+    zipfile = ZipFile(res, "w")
+    for i in range(len(clauses)):
+        zipfile.writestr(f"{i+1}.txt", clauses_to_file(clauses[i]))
+    zipfile.close()
+    res.seek(0)
+    return res.read()
 
 def load_clauses(case: str) -> "list[tuple[int]]":
     case = case.replace('(', '')

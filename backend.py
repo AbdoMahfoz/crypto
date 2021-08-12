@@ -45,14 +45,21 @@ def shuffle():
         file = request.files["file"]
     except Exception:
         return json_response(status_=400)
+    if "count" in request.args:
+        count = int(request.args.get("count"))
+    else:
+        count = 1
     file.seek(0)
     data = file.read().decode("utf-8")
     file.close()
     try:
-        res = clauses_to_file(shuffle_clauses(load_clauses_from_file(data)))
+        if count <= 1:
+            res = clauses_to_file(shuffle_clauses(load_clauses_from_file(data), count))
+        else:
+            res = zip_clauses(shuffle_clauses(load_clauses_from_file(data), count))
+        return Response(res)
     except Exception as e:
         return json_response(status_=400, msg=str(e))
-    return Response(res)
     
 
 if __name__ == "__main__":

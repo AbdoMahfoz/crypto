@@ -28,6 +28,8 @@ class App extends Component {
     shuffle_loading: false,
     download_ready: false,
     res_file: null,
+    num_shuffle: 1,
+    last_num_shuffle: 1,
     num_vars: "",
     val_num_vars: "",
     num_clauses: "",
@@ -264,28 +266,38 @@ class App extends Component {
                   the validation fields are blank
                 </p>
                 <h3 style={{ textAlign: "center" }}>Random shuffle</h3>
-                <input
-                  className="form-control"
-                  style={{ marginLeft: "0px" }}
-                  type="file"
-                  ref={(e) => {
-                    this.file_ref = e;
-                  }}
-                  disabled={this.state.shuffle_loading}
-                  onChange={() => {
-                    if (this.file_ref.files.length === 0) {
-                      return;
-                    }
-                    const file = this.file_ref.files[0];
-                    const formData = new FormData();
-                    formData.append("file", file);
-                    this.setState({ uploaded_file_name: file.name });
-                    this.setState({
-                      shuffle_loading: true,
-                      download_ready: false,
-                    });
-                    fetch("shuffle", { method: "post", body: formData }).then(
-                      (res) => {
+                <Input
+                  name="num_shuffle"
+                  label="Number of shuffles"
+                  value={this.state.num_shuffle}
+                  onChange={this.handleOnChange}
+                />
+                <div style={{ padding: "0px 10px" }}>
+                  <input
+                    className="form-control"
+                    style={{ marginLeft: "0px" }}
+                    type="file"
+                    ref={(e) => {
+                      this.file_ref = e;
+                    }}
+                    disabled={this.state.shuffle_loading}
+                    onChange={() => {
+                      if (this.file_ref.files.length === 0) {
+                        return;
+                      }
+                      const file = this.file_ref.files[0];
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      this.setState({ uploaded_file_name: file.name });
+                      this.setState((prevState) => ({
+                        shuffle_loading: true,
+                        download_ready: false,
+                        last_num_shuffle: prevState.num_shuffle,
+                      }));
+                      fetch(`shuffle?count=${this.state.num_shuffle}`, {
+                        method: "post",
+                        body: formData,
+                      }).then((res) => {
                         if (res.status === 400) {
                           res.json().then((obj) => {
                             alert(obj.msg);
@@ -305,35 +317,42 @@ class App extends Component {
                             this.file_ref.value = "";
                           });
                         }
-                      }
-                    );
-                  }}
-                />
-
-                {(this.state.shuffle_loading || this.state.download_ready) && (
-                  <button
-                    onClick={() => {
-                      var url = window.URL.createObjectURL(this.state.res_file);
-                      var a = document.createElement("a");
-                      a.href = url;
-                      a.download = "res.txt";
-                      document.body.appendChild(a);
-                      a.click();
-                      a.remove();
+                      });
                     }}
-                    style={{ width: "100%", marginTop: "10px" }}
-                    className="btn btn-secondary"
-                    disabled={!this.state.download_ready}
-                  >
-                    {this.state.shuffle_loading ? (
-                      <div className="spinner-border">
-                        <span className="sr-only" />
-                      </div>
-                    ) : (
-                      "Download result of " + this.state.uploaded_file_name
-                    )}
-                  </button>
-                )}
+                  />
+                </div>
+                <div style={{ padding: "0px 10px" }}>
+                  {(this.state.shuffle_loading ||
+                    this.state.download_ready) && (
+                    <button
+                      onClick={() => {
+                        var url = window.URL.createObjectURL(
+                          this.state.res_file
+                        );
+                        var a = document.createElement("a");
+                        a.href = url;
+                        a.download =
+                          this.state.last_num_shuffle > 1
+                            ? "res.zip"
+                            : "res.txt";
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                      }}
+                      style={{ width: "100%", marginTop: "5px" }}
+                      className="btn btn-secondary"
+                      disabled={!this.state.download_ready}
+                    >
+                      {this.state.shuffle_loading ? (
+                        <div className="spinner-border">
+                          <span className="sr-only" />
+                        </div>
+                      ) : (
+                        "Download result of " + this.state.uploaded_file_name
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="col-md-1 col-sm-12 col-xs-12">
                 <div className="d-md-block d-sm-none d-none vertical-line" />
