@@ -263,6 +263,7 @@ class App extends Component {
                   Generated clause will automatically be fed into validation if
                   the validation fields are blank
                 </p>
+                <h3 style={{ textAlign: "center" }}>Random shuffle</h3>
                 <input
                   className="form-control"
                   style={{ marginLeft: "0px" }}
@@ -272,6 +273,9 @@ class App extends Component {
                   }}
                   disabled={this.state.shuffle_loading}
                   onChange={() => {
+                    if (this.file_ref.files.length === 0) {
+                      return;
+                    }
                     const file = this.file_ref.files[0];
                     const formData = new FormData();
                     formData.append("file", file);
@@ -280,15 +284,29 @@ class App extends Component {
                       shuffle_loading: true,
                       download_ready: false,
                     });
-                    fetch("shuffle", { method: "post", body: formData })
-                      .then((res) => res.blob())
-                      .then((res) => {
-                        this.setState({
-                          shuffle_loading: false,
-                          res_file: res,
-                          download_ready: true,
-                        });
-                      });
+                    fetch("shuffle", { method: "post", body: formData }).then(
+                      (res) => {
+                        if (res.status === 400) {
+                          res.json().then((obj) => {
+                            alert(obj.msg);
+                            this.setState({
+                              shuffle_loading: false,
+                              download_ready: false,
+                            });
+                            this.file_ref.value = "";
+                          });
+                        } else {
+                          res.blob().then((obj) => {
+                            this.setState({
+                              shuffle_loading: false,
+                              res_file: obj,
+                              download_ready: true,
+                            });
+                            this.file_ref.value = "";
+                          });
+                        }
+                      }
+                    );
                   }}
                 />
 
@@ -298,7 +316,7 @@ class App extends Component {
                       var url = window.URL.createObjectURL(this.state.res_file);
                       var a = document.createElement("a");
                       a.href = url;
-                      a.download = "file.txt";
+                      a.download = "res.txt";
                       document.body.appendChild(a);
                       a.click();
                       a.remove();
@@ -312,7 +330,7 @@ class App extends Component {
                         <span className="sr-only" />
                       </div>
                     ) : (
-                      "Download " + this.state.uploaded_file_name
+                      "Download result of " + this.state.uploaded_file_name
                     )}
                   </button>
                 )}

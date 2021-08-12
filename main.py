@@ -1,6 +1,7 @@
 import numpy as np
 from pysat.solvers import Glucose3
 from sys import argv
+from random import Random
 
 
 def __generator_helper(i, n, tmp_ans, final_ans):
@@ -13,7 +14,6 @@ def __generator_helper(i, n, tmp_ans, final_ans):
         tmp_ans[-1] = j * -1
         __generator_helper(i + 1, n, tmp_ans, final_ans)
         tmp_ans.pop(-1)
-
 
 def generate_clause_space(n):
     tmp_ans = []
@@ -31,7 +31,76 @@ def solve(clauses):
     return True, solver.get_model()
 
 
-def load_clauses(case: str):
+def shuffle_clauses(clauses: "list[list[int]]") -> "list[list[int]]":
+    positives = {}
+    negatives = {}
+    for i in range(len(clauses)):
+        for var in clauses[i]:
+            if var > 0:
+                if var in positives:
+                    positives[var] += 1
+                else:
+                    positives[var] = 1
+            else:
+                if abs(var) in negatives:
+                    negatives[abs(var)] += 1
+                else:
+                    negatives[abs(var)] = 1
+    res = []
+    new_clause = []
+    rand = Random()
+    rand.seed()
+    for clause in clauses:
+        for val in clause:
+            if val > 0:
+                dic = positives
+            else:
+                dic = negatives
+            k = rand.choice(list(dic.keys()))
+            new_clause.append(k if val > 0 else (k * -1))
+            dic[k] -= 1
+            if dic[k] == 0:
+                del dic[k]
+        res.append(list(new_clause))
+        new_clause.clear()
+    return res
+
+
+def load_clauses_from_file(file: str) -> "list[list[int]]":
+    lines = file.splitlines()
+    clasues = []
+    for i in range(len(lines)):
+        line = lines[i].strip().lower()
+        while '  ' in line:
+            line = line.replace('  ', ' ')
+        if i == 0:
+            if line.startswith('p cnf'):
+                try:
+                    n, c = tuple(int(x) for x in line[len('p cnf'):].strip().split(' '))
+                    if n > 0 and c > 2:
+                        continue
+                except Exception:
+                    pass
+            raise Exception("Invalid values in first line")
+        try:
+            nums = [int(x.strip()) for x in line.split(' ')]
+        except Exception:
+            raise Exception(f"Line #{i} included non integral values")
+        if nums[-1] != 0:
+            raise Exception(f"Line #{i} wasn't terminated with a 0")
+        clasues.append(nums[:-1])
+    return clasues
+
+def clauses_to_file(clauses: "list[list[int]]") -> str:
+    lines = []
+    var_count = 0
+    for clause in clauses:
+        var_count = max(var_count, max(clause))
+        lines.append(" ".join(str(x) for x in clause) + " 0")
+    lines.insert(0, f"p cnf {var_count} {len(lines)}")
+    return '\n'.join(lines)
+
+def load_clauses(case: str) -> "list[tuple[int]]":
     case = case.replace('(', '')
     case = case.replace(')', '')
     case = case.replace('x', '')

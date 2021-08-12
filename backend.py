@@ -2,7 +2,7 @@ from flask import Flask, request, render_template
 from flask.helpers import send_file
 from flask.wrappers import Response
 from flask_json import FlaskJSON, json_response
-from main import generate_clauses_strings, load_clauses, validate_solution, clause_to_string
+from main import *
 from os import getenv
 
 app = Flask(__name__)
@@ -48,7 +48,12 @@ def shuffle():
     file.seek(0)
     data = file.read().decode("utf-8")
     file.close()
-    return Response(data)
+    try:
+        res = clauses_to_file(shuffle_clauses(load_clauses_from_file(data)))
+    except Exception as e:
+        return json_response(status_=400, msg=str(e))
+    return Response(res)
+    
 
 if __name__ == "__main__":
     port = getenv("PORT", "5000")
