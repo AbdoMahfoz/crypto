@@ -4,6 +4,7 @@ from sys import argv
 from random import Random
 from zipfile import ZipFile
 from io import BytesIO
+from copy import deepcopy
 
 
 def __generator_helper(i, n, tmp_ans, final_ans):
@@ -40,7 +41,6 @@ def shuffle_clauses(clauses: "list[list[int]]", count: int = 1) -> "list[list[li
         res.append(__shuffle_helper_2(clauses))
     return res
 
-
 def __shuffle_helper_2(clauses: "list[list[int]]") -> "list[list[int]]":
     rand = Random()
     rand.seed()
@@ -51,7 +51,7 @@ def __shuffle_helper_2(clauses: "list[list[int]]") -> "list[list[int]]":
             positive_idxs.append(i)
         if len([x for x in clauses[i] if x < 0]):
             negative_idxs.append(i)
-    cur_clauses = list(clauses)
+    cur_clauses = deepcopy(clauses)
     for i in range(len(cur_clauses) - 1):
         k = rand.randint(0, len(cur_clauses[i]) - 1)
         j = rand.choice(positive_idxs if cur_clauses[i][k] > 0 else negative_idxs)
