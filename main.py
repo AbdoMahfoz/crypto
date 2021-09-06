@@ -40,7 +40,6 @@ def shuffle_clauses(clauses: "list[list[int]]", count: int = 1) -> "list[list[li
         res.append(__shuffle_helper_2(clauses))
     return res
 
-
 def __shuffle_helper_2(clauses: "list[list[int]]") -> "list[list[int]]":
     rand = Random()
     rand.seed()
