@@ -34,11 +34,29 @@ def solve(clauses):
 
 def shuffle_clauses(clauses: "list[list[int]]", count: int = 1) -> "list[list[list[int]]]":
     if count <= 1:
-        return __shuffle_helper(clauses)
+        return __shuffle_helper_2(clauses)
     res = []
     for _ in range(count):
-        res.append(__shuffle_helper(clauses))
+        res.append(__shuffle_helper_2(clauses))
     return res
+
+def __shuffle_helper_2(clauses: "list[list[int]]") -> "list[list[int]]":
+    rand = Random()
+    rand.seed()
+    negative_idxs = []
+    positive_idxs = []
+    for i in range(len(clauses)):
+        if len([x for x in clauses[i] if x > 0]):
+            positive_idxs.append(i)
+        if len([x for x in clauses[i] if x < 0]):
+            negative_idxs.append(i)
+    cur_clauses = list(clauses)
+    for i in range(len(cur_clauses) - 1):
+        k = rand.randint(0, len(cur_clauses[i]) - 1)
+        j = rand.choice(positive_idxs if cur_clauses[i][k] > 0 else negative_idxs)
+        l = rand.choice([x for x in range(len(cur_clauses[j])) if cur_clauses[j][x] * cur_clauses[i][k] > 0])
+        cur_clauses[i][k], cur_clauses[j][l] = cur_clauses[j][l], cur_clauses[i][k]
+    return cur_clauses
 
 def __shuffle_helper(clauses: "list[list[int]]") -> "list[list[int]]":
     positives = {}
