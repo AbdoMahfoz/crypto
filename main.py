@@ -45,16 +45,29 @@ def __shuffle_helper_2(clauses: "list[list[int]]") -> "list[list[int]]":
     rand.seed()
     negative_idxs = []
     positive_idxs = []
+    num_dict = [[] for _ in range(len(clauses) * 2)]
     for i in range(len(clauses)):
-        if len([x for x in clauses[i] if x > 0]):
+        pos_count = 0
+        neg_count = 0
+        for n in clauses[i]:
+            if n > 0:
+                pos_count += 1
+            else:
+                neg_count += 1
+        if pos_count > 0:
             positive_idxs.append(i)
-        if len([x for x in clauses[i] if x < 0]):
+        if neg_count > 0:
             negative_idxs.append(i)
+        for n in clauses[i]:
+            if (n > 0 and pos_count == 1) or (n < 0 and neg_count == 1):
+                num_dict[abs(n) if n > 0 else abs(n) + 1].append(i)
     cur_clauses = list(clauses)
     for i in range(len(cur_clauses) - 1):
+        print(i)
         k = rand.randint(0, len(cur_clauses[i]) - 1)
-        j = rand.choice(positive_idxs if cur_clauses[i][k] > 0 else negative_idxs)
-        l = rand.choice([x for x in range(len(cur_clauses[j])) if cur_clauses[j][x] * cur_clauses[i][k] > 0])
+        j_exclude = num_dict[abs(cur_clauses[i][k]) if cur_clauses[i][k] > 0 else abs(cur_clauses[i][k]) + 1]
+        j = rand.choice([x for x in (positive_idxs if cur_clauses[i][k] > 0 else negative_idxs) if x not in j_exclude])
+        l = rand.choice([x for x in range(len(cur_clauses[j])) if cur_clauses[j][x] * cur_clauses[i][k] > 0 and cur_clauses[j][x] != cur_clauses[i][k]])
         cur_clauses[i][k], cur_clauses[j][l] = cur_clauses[j][l], cur_clauses[i][k]
     return cur_clauses
 
